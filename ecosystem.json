@@ -1,0 +1,27 @@
+{
+  "apps" : [{
+    "name"      : "wx公众号",
+    "script"    : "app.js",
+    "env": {
+      "COMMON_VARIABLE": "true"
+    },
+      "env_production" : {
+      "NODE_ENV": "production"
+    }
+  }],
+  "deploy" : {
+    "production" : {
+      "user" : "lipc",
+      "host" : ["你的地址"],
+      "port" : "你的端口",
+      "ref"  : "origin/master",
+      "repo" : "你的地址",
+      "path" : "/www/wx1/production",
+      "ssh_options": "StrictHostKeyChecking=no",
+	    "post-deploy":"npm install --registry=https://registry.npm.taobao.org && npm install koa@1.2 && npm install sha1 && pm2 startOrRestart ecosystem.json --env production",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
