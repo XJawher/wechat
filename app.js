@@ -10,6 +10,6 @@ let config = {
   }
 }  
 let app = new koa()
-app.use(wechat(config.wechat))
+app.use(g(config.wechat))
 app.listen(8087)
 console.log('listening 8087 ....')
