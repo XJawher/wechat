@@ -133,22 +133,11 @@ module.exports = function (opts) {
       let message = util.formatMessage(content.xml)
       console.log(message)
      /*在 util 中完成了 XML 的格式化，这样就很容易的完成对用户发送的消息类型作出判断*/  
-      if (message.MsgType === 'event') {
-        if (message.Event === 'subscribe') {
-          let now = new Date().getTime()
+      this.weixin = message
 
-          that.status = 200
-          that.type = 'application/xml'
-          that.body = '<xml>'+
-                      '<ToUserName><![CDATA['+ message.FromUserName +']]></ToUserName>'+
-                      '<FromUserName><![CDATA['+ message.ToUserName +']]></FromUserName>'+
-                      '<CreateTime>'+ now +'</CreateTime>'+
-                      '<MsgType><![CDATA[text]]></MsgType>'+
-                      '<Content><![CDATA[你好]]></Content>'+
-                      '</xml>'
-          return
-        }
-      } 
+      yield handler.call(this,next)
+
+      wechat.reply.call.(this)  
     }
 
 

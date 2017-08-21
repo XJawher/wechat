@@ -1,7 +1,7 @@
 'use strict' 
 let promise = require('bluebird')
 let request = promise.promisify(require('request'))
-
+let util = require('./util')
 let prefix = 'https://api.weixin.qq.com/cgi-bin/' 
 let api = {
   accessToken : prefix + 'token?grant_type=client_credential'
@@ -76,6 +76,16 @@ Wechat.prototype.updataAccessToken = function() {
     })
     
   })
+}
+
+Wechat.prototype.reply = function() {
+  let content = this.body
+  let message = this.weixin
+  let xml = util.tpl(content,message)
+
+  this.status = 200
+  this.type = 'application/xml'
+  this.body = xml
 }
 
 module.exports = Wechat

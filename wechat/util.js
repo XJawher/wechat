@@ -1,7 +1,7 @@
 'use strict'
 let xml2js = require('xml2js')
 let Promise = require('bluebird')
-
+let tpl = require('./tpl')
 exports.parseXMLAsync =function (xml) {
   return new Promise(function (resolve,reject) {
     xml2js.parseString(xml,{trim:true},function (err,content) {
@@ -45,6 +45,26 @@ function formatMessage(result) {
 }
 
 exports.formatMessage = formatMessage
+export.tpl = function(content,message) {
+  let info = {} /*临时对象存储回复的内容*/
+  let type = 'text'
+  let fromUserName = message.fromUserName
+  let toUserName = message.toUserName
+
+  if (Array.isArray(content)) {
+    type = 'news'
+  }
+
+  type = content.type || type
+  info.content = content
+  info.createTime = new Date().getTime
+  info.msgType = type
+  info.fromUserName = toUserName
+  info.toUserName = fromUserName
+
+  return tpl.compiled(info)
+}
+
 /*进一步格式化 XML 的方法*/
 // exports.formatMessage =function (xml) {
 //   return new Promise(function (resolve,reject) {
