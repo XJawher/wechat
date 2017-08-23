@@ -3,19 +3,18 @@ let promise = require('bluebird')
 let request = promise.promisify(require('request'))
 let util = require('./util')
 let fs = require('fs')
-
+let _ = require('lodash')
 let prefix = 'https://api.weixin.qq.com/cgi-bin/' 
 let api = {
     accessToken: prefix + 'token?grant_type=client_credential',
-    upload: prefix + 'media/upload?'/*,
-    temporary: {
+    temporary: {/*临时的素材*/
         upload: prefix + 'media/upload?'
     },
-    permanent: {
+    permanent: {/*永久的素材 uploadNews 图文消息 uploadNewsPic 图文消息封面图*/
         upload: prefix + 'material/add_material?',
         uploadNews: prefix + 'material/add_news?',
         uploadNewsPic: prefix + 'media/uploadimg?'
-    }*/
+    }
 }
 
 
@@ -102,39 +101,114 @@ Wechat.prototype.updataAccessToken = function() {
 
 
 //上传临时素材
-Wechat.prototype.uploadMaterial = function (type,fliepath) {
-    let that = this
-    console.log('let that = this Wechat.js 107 => form')
-    console.log(that)
-    let form = {
-      media: fs.createReadStream(fliepath)/*创建一个可读的流，然后传入文件*/
-    }/**/
-    let appID = this.appID
-    let appSecret = this.appSecret
+// Wechat.prototype.uploadMaterial = function (type,fliepath) {
+//     let that = this
+//     console.log('let that = this Wechat.js 107 => form')
+//     console.log(that)
+//     let form = {
+//       media: fs.createReadStream(fliepath)/*创建一个可读的流，然后传入文件*/
+//     }/**/
+//     let appID = this.appID
+//     let appSecret = this.appSecret
 
-    /*同样的用 promise 包装，不过要在里面传递全局票据*/
-  return new promise(function (resolve,reject) {
-    that
-      .fetchAccessToken()/*拿到全局票据*/
-      .then(function (data) {/*在这里面构建请求的 URL */
-        let url = api.upload + 'access_token=' + data.access_token + '&type=' + type
+//     /*同样的用 promise 包装，不过要在里面传递全局票据*/
+//   return new promise(function (resolve,reject) {
+//     that
+//       .fetchAccessToken()/*拿到全局票据*/
+//       .then(function (data) {/*在这里面构建请求的 URL */
+//         let url = api.upload + 'access_token=' + data.access_token + '&type=' + type
 
-        /*request 向某个服务器发起 get 或者 post 请求*/
-        request({method:'POST', url:url,formData:form, json:true}).then(function (response) {
-          let _data = response.body
-          if (_data) {
-            resolve(_data)
-          }
-          else {
-            throw new Error('upload material mirror')
-          }
-        })
-        .catch(function (err) {
-          reject(err) 
-        })  
-      })   
-  }) 
+//         /*request 向某个服务器发起 get 或者 post 请求*/
+//         request({method:'POST', url:url,formData:form, json:true}).then(function (response) {
+//           let _data = response.body
+//           if (_data) {
+//             resolve(_data)
+//           }
+//           else {
+//             throw new Error('upload material mirror')
+//           }
+//         })
+//         .catch(function (err) {
+//           reject(err) 
+//         })  
+//       })   
+//   }) 
+// }
+// 上传永久素材
+Wechat.prototype.uploadMaterial = function (type, material, permanent) {
+    const that = this
+    let form = {}
+    //默认为零时素材
+    let uploadUrl = api.temporary.upload
+
+    // 如果传入了参数
+    if(permanent) {
+        uploadUrl = api.permanent.upload
+
+        _.extend(form, permanent)
+    }
+
+    if(type === 'pic') {/*若是 pic 那么我们认为他就是图片*/
+        uploadUrl = api.permanent.uploadNewsPic
+    }
+
+    if(type === 'news') {/*如果是 news 那么就是新闻推送 是个数组*/
+        uploadUrl = api.permanent.uploadNews
+
+        //如果传入了一个数组
+        form = material /*这里把素材给 form */
+    } else {
+        // 如果传入了一个路径
+        form.media = fs.createReadStream(material)
+    }
+
+    // const appID = this.appID
+    // const appSecret = this.appSecret
+
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                let url = uploadUrl + 'access_token=' + data.access_token
+
+                if(!permanent) {
+                    url += '&type=' + type
+                } else {
+                    form.access_token = data.access_token
+                }
+
+                /*上传的参数 */
+                let options = {  
+                    method: 'POST',
+                    url: url,
+                    json: true
+                }
+
+                if(type === 'news') {
+                    options.body = form
+                } else {
+                    options.formData = form
+                }
+
+
+                request({method: 'POST', url: url, formData: form, json: true}).then(function(response) {
+                    console.log('response' + JSON.stringify(response))
+                    let _data = response.body
+                    console.log('_data' + JSON.stringify(_data))
+
+                    if(_data) {
+                        resolve(_data)
+                    } else {
+                        throw new Error('Upload material fails')
+                    }
+                })
+                .catch(function(err) {
+                    reject(err)
+                })
+            })
+    })
 }
+
 
 Wechat.prototype.reply = function () {
   let content = this.body

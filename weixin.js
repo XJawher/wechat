@@ -1,42 +1,43 @@
-let config = require('./config');
+let config = require('./config')
+
 let Wechat = require('./wechat/wechat')
 
 let wechatApi = new Wechat(config.wechat)
 
 
 exports.reply = function *(next) {
-    let message = this.weixin;
+    let message = this.weixin
     console.log('message：' + message)
 
     if(message.MsgType === 'event') {
         if(message.Event === 'subscribe') {
             if(message.EventKey) {
-                console.log('扫二维码进来：' + message.EventKey + ' ' + message.ticket);
+                console.log('扫二维码进来：' + message.EventKey + ' ' + message.ticket)
             }
-            this.body = '哈哈，你订阅了个号\r\n';
+            this.body = '哈哈，你订阅了个号\r\n'
         } else if(message.Event === 'unsubscribe') {
-            console.log('取关');
-            this.body = '';
+            console.log('取关')
+            this.body = ''
         } else if(message.Event === 'LOCATION') {
-            this.body = '您的地理位置是: ' + message.Latitude + '/' + message.Longitude + '-' + message.Precision;
+            this.body = '您的地理位置是: ' + message.Latitude + '/' + message.Longitude + '-' + message.Precision
         } else if(message.Event === 'CLICK') {
-            this.body = '您点击了菜单' + message.EventKey;
+            this.body = '您点击了菜单' + message.EventKey
         } else if(message.Event === 'SCAN') {
-            console.log('关注后扫二维码：' + message.EventKey + ' ' + message.ticket );
-            this.body = '扫一下';
+            console.log('关注后扫二维码：' + message.EventKey + ' ' + message.ticket )
+            this.body = '扫一下'
         } else if(message.Event === 'view') {
-            this.body = '您单击了菜单中的链接：' + message.EventKey;
+            this.body = '您单击了菜单中的链接：' + message.EventKey
         }
     } else if(message.MsgType === 'text') {
-        let content = message.Content;
-        let reply = '您说的 ' + message.Content + ' 太复杂';
+        let content = message.Content
+        let reply = '您说的 ' + message.Content + ' 太复杂'
 
         if(content === '1') {
-            reply = '第一';
+            reply = '第一'
         } else if(content === '2') {
-            reply = '第二';
+            reply = '第二'
         } else if(content === '3') {
-            reply = '第三';
+            reply = '第三'
         } else if(content === '4') {
             reply = [{
                 title: '技术改变世界',
@@ -50,14 +51,14 @@ exports.reply = function *(next) {
                 url: 'https://github.com'
             }]
         } else if(content === '5') {
-            let data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg');
+            let data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg')
 
             reply = {
                 type: 'image',
                 mediaId: data.media_id
             }
         } else if(content === '6') {
-            let data = yield wechatApi.uploadMaterial('video', __dirname + '/4.mp4');
+            let data = yield wechatApi.uploadMaterial('video', __dirname + '/2.mp4')
 
             reply = {
                 type: 'video',
@@ -67,7 +68,7 @@ exports.reply = function *(next) {
             }
         } else if(content === '7') {
             //音乐不用上传素材，但是需要封面
-            let data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg');
+            let data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg')
 
             reply = {
                 type: 'music',
@@ -77,16 +78,16 @@ exports.reply = function *(next) {
                 thumbMediaId: data.media_id
             }
         } else if(content === '8') {//永久素材
-            let data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg', {type: 'image'});
+            let data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg', {type: 'image'})
 
             reply = {
                 type: 'image',
                 mediaId: data.media_id
             }
         } else if(content === '9') {
-            let data = yield wechatApi.uploadMaterial('video', __dirname + '/2.mp4', {type: 'video', description: '{"title": "nice", "introduction": "SO EASY"}'});
+            let data = yield wechatApi.uploadMaterial('video', __dirname + '/2.mp4', {type: 'video', description: '{"title": "nice", "introduction": "SO EASY"}'})
 
-            console.log(data);
+            console.log(data)
 
             reply = {
                 type: 'video',
@@ -96,9 +97,9 @@ exports.reply = function *(next) {
             }
         }
 
-        this.body = reply;
+        this.body = reply
     }
 
-    yield next;
+    yield next
 }
 
