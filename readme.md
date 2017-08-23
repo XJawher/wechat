@@ -128,8 +128,31 @@ heredoc 和 ejs 这是两个很好用的模板库
 	错误情况下的返回JSON数据包示例如下（示例为无效媒体类型错误）：
 	{"errcode":40004,"errmsg":"invalid media type"}
 
+官方对临时素材的要求比较多，所以在开发的时候要非常细心      
 
-
+在写上传文件的原型的时候遇到的一个坑，就是在已经有了 **that = this** 的时候不能再写一个，就算在 promise 内部也是不行的     
+   
+	  return new promise(function (resolve,reject) {
+	    that
+	      .fetchAccessToken()/*拿到全局票据*/
+	      .then(function (data) {/*在这里面构建请求的 URL */
+	        let url = api.upload + 'access_token=' + data.access_token + '&type=' + type
+	
+	        /*request 向某个服务器发起 get 或者 post 请求*/
+	        request({method:'POST', url:url,formData:form, json:true}).then(function (response) {
+	          let _data = response.body
+	          if (_data) {
+	            resolve(_data)
+	          }
+	          else {
+	            throw new Error('upload material mirror')
+	          }
+	        })
+	        .catch(function (err) {
+	          reject(err) 
+	        })  
+	      })   
+	  })
 
 
 

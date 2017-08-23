@@ -1,7 +1,7 @@
-// let weconfig = require('./weconfig');
-// let Wechat = require('./wechat/wechat');
+let config = require('./config');
+let Wechat = require('./wechat/wechat')
 
-// let wechatApi = new Wechat(weconfig.wechat);
+let wechatApi = new Wechat(config.wechat)
 
 
 exports.reply = function *(next) {
@@ -57,7 +57,7 @@ exports.reply = function *(next) {
                 mediaId: data.media_id
             }
         } else if(content === '6') {
-            let data = yield wechatApi.uploadMaterial('video', __dirname + '/6.mp4');
+            let data = yield wechatApi.uploadMaterial('video', __dirname + '/4.mp4');
 
             reply = {
                 type: 'video',
@@ -84,7 +84,7 @@ exports.reply = function *(next) {
                 mediaId: data.media_id
             }
         } else if(content === '9') {
-            let data = yield wechatApi.uploadMaterial('video', __dirname + '/6.mp4', {type: 'video', description: '{"title": "nice", "introduction": "SO EASY"}'});
+            let data = yield wechatApi.uploadMaterial('video', __dirname + '/2.mp4', {type: 'video', description: '{"title": "nice", "introduction": "SO EASY"}'});
 
             console.log(data);
 

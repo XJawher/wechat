@@ -2,9 +2,12 @@
 let promise = require('bluebird')
 let request = promise.promisify(require('request'))
 let util = require('./util')
+let fs = require('fs')
+
 let prefix = 'https://api.weixin.qq.com/cgi-bin/' 
 let api = {
     accessToken: prefix + 'token?grant_type=client_credential',
+    upload: prefix + 'media/upload?'/*,
     temporary: {
         upload: prefix + 'media/upload?'
     },
@@ -12,7 +15,7 @@ let api = {
         upload: prefix + 'material/add_material?',
         uploadNews: prefix + 'material/add_news?',
         uploadNewsPic: prefix + 'media/uploadimg?'
-    }
+    }*/
 }
 
 
@@ -24,7 +27,19 @@ function Wechat(opts) {
    this.getAccessToken = opts.getAccessToken
    this.saveAccessToken = opts.saveAccessToken
 
-   this.getAccessToken() 
+   this.fetchAccessToken() 
+   
+}
+Wechat.prototype.fetchAccessToken = function (type,fliepath) {
+  let that = this 
+
+  if (this.access_token && this.expires_in) {
+    if (this.isValidAccessToken(this)) {
+      return promise.resolve(this)
+    }
+  }
+
+  this.getAccessToken() 
    .then(function (data) {
      try{
       data = JSON.parse()//拿到票据的信息，由于拿到的票据的内容都是字符串，现在把字符串 JSON 化
@@ -45,9 +60,9 @@ function Wechat(opts) {
     
     that.saveAccessToken(data)//调用 save 方法，把票据存起来
 
+    return promise.resolve(data)
    })
 }
-
 //在 Wechat 的原型链上增加一个 isValidAccessToken 合法性的检查
 Wechat.prototype.isValidAccessToken = function(data) {/*data 不存在|| data.access_token 不存在||expires_in 有效期不存在 这三个说明他是不合法的*/
   if (!data || !data.access_token || !data.expires_in) {
@@ -85,74 +100,40 @@ Wechat.prototype.updataAccessToken = function() {
   })
 }
 
+
 //上传临时素材
-Wechat.prototype.uploadMaterial = function (type, material, permanent) {
-    const that = this;
-    let form = {};/**/
-    //默认为零时素材
-    let uploadUrl = api.temporary.upload;
+Wechat.prototype.uploadMaterial = function (type,fliepath) {
+    let that = this
+    console.log('let that = this Wechat.js 107 => form')
+    console.log(that)
+    let form = {
+      media: fs.createReadStream(fliepath)/*创建一个可读的流，然后传入文件*/
+    }/**/
+    let appID = this.appID
+    let appSecret = this.appSecret
 
-    // 如果传入了参数
-    if(permanent) {
-        uploadUrl = api.permanent.upload;
+    /*同样的用 promise 包装，不过要在里面传递全局票据*/
+  return new promise(function (resolve,reject) {
+    that
+      .fetchAccessToken()/*拿到全局票据*/
+      .then(function (data) {/*在这里面构建请求的 URL */
+        let url = api.upload + 'access_token=' + data.access_token + '&type=' + type
 
-        _.assign(form, permanent);
-    }
-
-    if(type === 'pic') {
-        uploadUrl = api.permanent.uploadNewsPic;
-    }
-
-    if(type === 'news') {
-        uploadUrl = api.permanent.uploadNews;
-
-        //如果传入了一个数组
-        form = material;
-    } else {
-        // 如果传入了一个路径
-        form.media = fs.createReadStream(material)
-
-    return new Promise(function(resolve, reject) {
-        that
-            .fetchAccessToken()
-            .then(function(data) {
-                let url = uploadUrl + 'access_token=' + data.access_token;
-
-                if(!permanent) {
-                    url += '&type=' + type;
-                } else {
-                    form.access_token = data.access_token;
-                }
-
-                let options = {
-                    method: 'POST',
-                    url: url,
-                    json: true
-                }
-
-                if(type === 'news') {
-                    options.body = form;
-                } else {
-                    options.formData = form;
-                }
-
-
-                request({method: 'POST', url: url, formData: form, json: true}).then(function(response) {
-                    console.log('response' + JSON.stringify(response));
-                    let _data = response.body;
-                    console.log('_data' + JSON.stringify(_data));
-
-                    if(_data) {
-                        resolve(_data);
-                    } else {
-                        throw new Error('Upload material fails');
-                    }
-                })
-                .catch(function(err) {
-                    reject(err);
-                })
-            })
-    })
+        /*request 向某个服务器发起 get 或者 post 请求*/
+        request({method:'POST', url:url,formData:form, json:true}).then(function (response) {
+          let _data = response.body
+          if (_data) {
+            resolve(_data)
+          }
+          else {
+            throw new Error('upload material mirror')
+          }
+        })
+        .catch(function (err) {
+          reject(err) 
+        })  
+      })   
+  }) 
 }
 
 Wechat.prototype.reply = function () {
