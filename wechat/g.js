@@ -90,13 +90,13 @@ appid=APPID&secret=APPSECRET 这两个是动态的需要传递进来的
     
 //   })
 // }
-module.exports = function (opts) {
+module.exports = function (opts,handler) {
 /*wechat 中间件调用，初始化实例  这个实例 wechat 是用来管理和微信的接口和一些票据的更新
 ，存储
 */
 
   let wechat = new Wechat(opts)
-  return function *(next) {
+  return function* (next) {
     let that = this
     //实现验证逻辑   
     let token = opts.token
@@ -132,14 +132,10 @@ module.exports = function (opts) {
 /*进一步的将 XML 格式化*/   
       let message = util.formatMessage(content.xml)
       console.log(message)
-     /*在 util 中完成了 XML 的格式化，这样就很容易的完成对用户发送的消息类型作出判断*/  
+
       this.weixin = message
-
       yield handler.call(this,next)
-
-      wechat.reply.call.(this)  
+      wechat.reply.call(this)
     }
-
-
   }
 }

@@ -32,49 +32,49 @@ heredoc 和 ejs 这是两个很好用的模板库
 	
 	let tpl = heredoc(function () {
 	 /*
-	   <xml>
-	  <ToUserName><![CDATA[<% toUserName %>]]></ToUserName>
-	  <FromUserName><![CDATA[<% fromUserName %>]]></FromUserName>
-	  <CreateTime><% createTime %></CreateTime>
-	  <MsgType><![CDATA[<% msgType %>]]></MsgType>
-	  <% if (msgType === 'text') { %>
-	  <Content><![CDATA[<% content %>]]></Content>
-	  <% } else if (msgType === 'image') { %>
-	    <Image>
-	      <MediaId><![CDATA[<% content.media_id %>]]></MediaId>
-	    </Image> 
-	  <% } else if (msgType === 'voice') { %>
-	    <Voice>
-	      <MediaId><![CDATA[<% content.media_id %>]]></MediaId>
-	    </Voice>
-	  <% } else if (msgType === 'voice') { %>
-	    <Video>
-	      <MediaId><![CDATA[<% content.media_id %>]]></MediaId>
-	      <Title><![CDATA[<% content.title %>]]></Title>
-	      <Description><![CDATA[<% content.description %>]]></Description>
-	    </Video> 
-	  <% } else if (msgType === 'music') { %>
-	    <Music>
-	      <Title><![CDATA[TITLE]]></Title>
-	      <Description><![CDATA[<% content.description %>]]></Description>
-	      <MusicUrl><![CDATA[<% content.musicUrl %>]]></MusicUrl>
-	      <HQMusicUrl><![CDATA[<% content.hqMusicUrl %>]]></HQMusicUrl>
-	      <ThumbMediaId><![CDATA[<% content.thumbMediaId %>]]></ThumbMediaId>
-	    </Music>
-	  <% } else if (msgType === 'news') { %>
-	    <ArticleCount><% content.length %></ArticleCount>
-	    <Articles>
-	    <% content.forEach(function(item){ %>
-	      <item>
-	      <Title><![CDATA[<% item.title %>]]></Title> 
-	      <Description><![CDATA[<% item.description %>]]></Description>
-	      <PicUrl><![CDATA[<% item.picUrl %>]]></PicUrl>
-	      <Url><![CDATA[<% item.url %>]]></Url>
-	      </item>
-	    <% }) %> 
-	    </Articles> 
-	  <% } %>
-	  </xml>
+		<xml> 
+		  <ToUserName><![CDATA[<%= toUserName %>]]></ToUserName> 
+		  <FromUserName><![CDATA[<%= fromUserName %>]]></FromUserName> 
+		  <CreateTime><%= createTime %></CreateTime>
+		  <MsgType><![CDATA[<%= msgType %>]]></MsgType> 
+		  <% if (msgType == 'text') {%>
+		    <Content><![CDATA[<%- content %>]]></Content>
+		  <% } else if (msgType == 'image') { %> 
+		    <Image>
+		      <MediaId><![CDATA[<%= content.media_id %>]]></MediaId>
+		    </Image>
+		  <% } else if (msgType == 'voice') { %> 
+		    <Voice>
+		      <MediaId><![CDATA[<%= content.media_id %>]]></MediaId>
+		    </Voice>
+		  <% } else if (msgType == 'video') { %> 
+		    <Video>
+		      <MediaId><![CDATA[<%= content.media_id %>]]></MediaId>
+		      <Title><![CDATA[<%= content.title %>]]></Title>
+		      <Description><![CDATA[<%= content.description %>]]></Description>
+		    </Video> 
+		  <% } else if (msgType == 'music') { %> 
+		    <Music>
+		      <Title><![CDATA[<%= content.title %>]]></Title>
+		      <Description><![CDATA[<%= content.description %>]]></Description>
+		      <MusicUrl><![CDATA[<%= content.musicUrl %>]]></MusicUrl>
+		      <HQMusicUrl><![CDATA[<%= content.hqMusicUrl %>]]></HQMusicUrl>
+		      <ThumbMediaId><![CDATA[<%= content.thumbMediaId %>]]></ThumbMediaId>
+		    </Music>
+		  <% } else if (msgType == 'news') { %> 
+		    <ArticleCount><%= content.length %></ArticleCount>
+		    <Articles>
+		      <% content.forEach(function(item) { %>
+		        <item>
+		        <Title><![CDATA[<%= item.title %>]]></Title> 
+		        <Description><![CDATA[<%= item.description %>]]></Description>
+		        <PicUrl><![CDATA[<%= item.picUrl %>]]></PicUrl>
+		        <Url><![CDATA[<%= item.url %>]]></Url>
+		        </item>
+		      <% }) %> 
+		    </Articles>
+		  <% } %>
+		</xml>
 	 */
 	})
 	
@@ -87,8 +87,46 @@ heredoc 和 ejs 这是两个很好用的模板库
 	  compiled : compiled
 	}
 
-
-
+## 第五次 commit 实现自动回复
+在做这个的时候有很多莫名其妙的坑，特别是 XML 模板那块，要非常的仔细小心才行。
+## 第六次 commit 实现临时素材的上传     
+下面是腾讯官方的临时素材的要求，这个临时素材他们只保存三天
+    
+	新增临时素材
+	公众号经常有需要用到一些临时性的多媒体素材的场景，例如在使用接口特别是发送消息时，
+	对多媒体文件、多媒体消息的获取和调用等操作，是通过media_id来进行的。
+	素材管理接口对所有认证的订阅号和服务号开放。通过本接口，公众号可以新增临时素材（即上传临时多媒体文件）。
+	注意点：
+	1、临时素材media_id是可复用的。
+	2、媒体文件在微信后台保存时间为3天，即3天后media_id失效。
+	3、上传临时素材的格式、大小限制与公众平台官网一致。
+	    图片（image）: 2M，支持PNG\JPEG\JPG\GIF格式
+	    语音（voice）：2M，播放长度不超过60s，支持AMR\MP3格式
+	    视频（video）：10MB，支持MP4格式
+	    缩略图（thumb）：64KB，支持JPG格式
+	4、需使用https调用本接口。
+	
+	接口调用请求说明
+	http请求方式：POST/FORM，使用https
+	https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type=TYPE
+	调用示例（使用curl命令，用FORM表单方式上传一个多媒体文件）：
+	curl -F media=@test.jpg "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type=TYPE"
+	参数说明
+	参数	是否必须	说明
+	access_token	是	调用接口凭证
+	type	
+	是
+	媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb）
+	media	是	form-data中媒体文件标识，有filename、filelength、content-type等信息
+	返回说明
+	正确情况下的返回JSON数据包结果如下：
+	{"type":"TYPE","media_id":"MEDIA_ID","created_at":123456789}
+	参数	描述
+	type	媒体文件类型，分别有图片（image）、语音（voice）、视频（video）和缩略图（thumb，主要用于视频与音乐格式的缩略图）
+	media_id	媒体文件上传后，获取标识
+	created_at	媒体文件上传时间戳
+	错误情况下的返回JSON数据包示例如下（示例为无效媒体类型错误）：
+	{"errcode":40004,"errmsg":"invalid media type"}
 
 
 

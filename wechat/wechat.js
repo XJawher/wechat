@@ -4,7 +4,15 @@ let request = promise.promisify(require('request'))
 let util = require('./util')
 let prefix = 'https://api.weixin.qq.com/cgi-bin/' 
 let api = {
-  accessToken : prefix + 'token?grant_type=client_credential'
+    accessToken: prefix + 'token?grant_type=client_credential',
+    temporary: {
+        upload: prefix + 'media/upload?'
+    },
+    permanent: {
+        upload: prefix + 'material/add_material?',
+        uploadNews: prefix + 'material/add_news?',
+        uploadNewsPic: prefix + 'media/uploadimg?'
+    }
 }
 
 
@@ -25,7 +33,7 @@ function Wechat(opts) {
       return that.updataAccessToken(data)
      }
      if (that.isVaildAccessToken(data)) {//判断票据是不是在合法时期内，
-      promise.resolve(data)//如果是合法的就继续向下传递
+      return promise.resolve(data)//如果是合法的就继续向下传递
      }
      else{//如果不合法我们要更新一下
       return that.updataAccessToken()
@@ -66,26 +74,93 @@ Wechat.prototype.updataAccessToken = function() {
     /*request 向某个服务器发起 get 或者 post 请求*/
     request({url:url,json:true}).then(function (response) {
       let data = response.body
-      var now = (new Date().getTime())
+      let now = (new Date().getTime())
       let expires_in = now + (data.expires_in -20)*1000
 
 
       data.expires_in = expires_in
 
       resolve(data)
-    })
-    
+    })    
   })
 }
 
-Wechat.prototype.reply = function() {
+//上传临时素材
+Wechat.prototype.uploadMaterial = function (type, material, permanent) {
+    const that = this;
+    let form = {};/**/
+    //默认为零时素材
+    let uploadUrl = api.temporary.upload;
+
+    // 如果传入了参数
+    if(permanent) {
+        uploadUrl = api.permanent.upload;
+
+        _.assign(form, permanent);
+    }
+
+    if(type === 'pic') {
+        uploadUrl = api.permanent.uploadNewsPic;
+    }
+
+    if(type === 'news') {
+        uploadUrl = api.permanent.uploadNews;
+
+        //如果传入了一个数组
+        form = material;
+    } else {
+        // 如果传入了一个路径
+        form.media = fs.createReadStream(material)
+
+    return new Promise(function(resolve, reject) {
+        that
+            .fetchAccessToken()
+            .then(function(data) {
+                let url = uploadUrl + 'access_token=' + data.access_token;
+
+                if(!permanent) {
+                    url += '&type=' + type;
+                } else {
+                    form.access_token = data.access_token;
+                }
+
+                let options = {
+                    method: 'POST',
+                    url: url,
+                    json: true
+                }
+
+                if(type === 'news') {
+                    options.body = form;
+                } else {
+                    options.formData = form;
+                }
+
+
+                request({method: 'POST', url: url, formData: form, json: true}).then(function(response) {
+                    console.log('response' + JSON.stringify(response));
+                    let _data = response.body;
+                    console.log('_data' + JSON.stringify(_data));
+
+                    if(_data) {
+                        resolve(_data);
+                    } else {
+                        throw new Error('Upload material fails');
+                    }
+                })
+                .catch(function(err) {
+                    reject(err);
+                })
+            })
+    })
+}
+
+Wechat.prototype.reply = function () {
   let content = this.body
   let message = this.weixin
   let xml = util.tpl(content,message)
-
   this.status = 200
   this.type = 'application/xml'
-  this.body = xml
+  this.body = xml 
 }
-
 module.exports = Wechat
