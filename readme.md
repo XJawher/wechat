@@ -194,7 +194,7 @@ heredoc 和 ejs 这是两个很好用的模板库
 	        throw new Error('fetch Material material fails')
 	    }
 	  })
-
+完成了素材的永久上传和下载，但是获取永久素材出了问题，需要进一步的解决   
 
 
 
