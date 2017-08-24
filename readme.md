@@ -408,4 +408,40 @@ heredoc 和 ejs 这是两个很好用的模板库
 	49003	传入的openid不属于此AppID
 以上是微信官方的接口 api
 
-在我测试的时候发现 分组的名字也就是标签名是可以重复出现的但是分组的 ID 却是唯一递增的，而且新增删除分组的时候是有个缓存时间的，不会说马上就发生。需要注意一下，完成了用户标签的功能就可以很方便的做用户的管理和分类  
+在我测试的时候发现 分组的名字也就是标签名是可以重复出现的但是分组的 ID 却是唯一递增的，而且新增删除分组的时候是有个缓存时间的，不会说马上就发生。需要注意一下，完成了用户标签的功能就可以很方便的做用户的管理和分类    
+## 第十次 commit 用户的详细信息 
+这个服务只对微信认证的服务号开通，不支持认证的订阅号，不过也可以实现一下，技多不压身麽   
+我们要获取用户的基本信息，通过的是 **UnionID机制** 这是一个非常重要的功能尤其是获取用户的详细信息的时候。获取用户的信息可以是单个也可以是多个，多个最多只支持 100 条    
+当报错信息是这样的时候要细心检查不要惊慌   
+
+	fetch usersssssssss
+	{ errcode: 40003,
+	  errmsg: 'invalid openid hint: [_AtRBa0276vr18]' }
+   
+	else if(content === '12') {
+	  let user = yield wechatApi.fetchUsers(message.FromUserName,'en')
+	  
+	  console.log('fetch user')
+	  console.log(user)
+	  let openIds = [  //错误在这里，是因为
+	    {
+	      openId:message.FromUserName,
+	      lang:'en'
+	    }
+	  ]
+	  let users = yield wechatApi.fetchUsers(openIds)
+	
+	  console.log('fetch usersssssssss')
+	  console.log(users)
+	
+	  reply = JSON.stringify(user)
+	}   
+用户的详细信息列表是一个对象      
+
+	{ total: 2,
+	  count: 2,
+	  data:
+	   { openid:
+	      [ 'oWzDH0l0-x1VKKEXNPFXbkINEBQw',
+	        'oWzDH0ro_1z7_iA7CP4kAw3QE3RA' ] },
+	  next_openid: 'oWzDH0ro_1z7_iA7CP4kAw3QE3RA' }

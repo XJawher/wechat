@@ -32,10 +32,10 @@ let api = {
     batchUpdate: prefix + 'groups/members/batchupdate?',
     del: prefix + 'groups/delete?'
   },
-  user: {
+  user: {/*用户的重命名*/
     remark: prefix + 'user/info/updateremark?',
-    fetch: prefix + 'user/info?',
-    batchFetch: prefix + 'user/info/batchget?',
+    fetch: prefix + 'user/info?',/*单个用户的信息*/
+    batchFetch: prefix + 'user/info/batchget?',/*多个用户的信息*/
     list: prefix + 'user/get?'
   },
   mass: {
@@ -351,25 +351,25 @@ Wechat.prototype.updateMaterial = function (mediaId,news) {
 */
 
 Wechat.prototype.countMaterial = function() {
-  var that = this;
+  let that = this
 
   return new promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
-        var url = api.permanent.count + 'access_token=' + data.access_token;
+        let url = api.permanent.count + 'access_token=' + data.access_token
 
         request({method: 'GET', url: url, json: true})
         .then(function(res) {
-          var _data = res.body;
+          let _data = res.body
           if (_data) {
-            resolve(_data);
+            resolve(_data)
           } else{
-            throw new Error('count material fails');
+            throw new Error('count material fails')
           }
         })
         .catch(function(err) {
-          reject(err);
+          reject(err)
         })
         
       })
@@ -384,28 +384,28 @@ offset  是 从全部素材的该偏移位置开始返回，0表示从第一个�
 count 是 返回素材的数量，取值在1到20之间
  */
 Wechat.prototype.batchMaterial = function(options) {
-  var that = this;
-  options.type = options.type || 'image';
-  options.offset = options.offset || 0;
-  options.count = options.count || 1;
+  let that = this
+  options.type = options.type || 'image'
+  options.offset = options.offset || 0
+  options.count = options.count || 1
 
   return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
-        var url = api.permanent.batch + 'access_token=' + data.access_token;
+        let url = api.permanent.batch + 'access_token=' + data.access_token
 
         request({method: 'POST',url: url, body: options, json: true})
         .then(function(res) {
-          var _data = res.body;
+          let _data = res.body
           if (_data) {
-            resolve(_data);
+            resolve(_data)
           } else{
-            throw new Error('batch material fails');
+            throw new Error('batch material fails')
           }
         })
         .catch(function(err) {
-          reject(err);
+          reject(err)
         })
         
       })
@@ -417,29 +417,29 @@ Wechat.prototype.batchMaterial = function(options) {
 
 /*创建分组*/
 Wechat.prototype.createGroup = function(name) {
-  let that = this;
+  let that = this
 
   return new promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
-        let url = api.group.create + 'access_token=' + data.access_token;
+        let url = api.group.create + 'access_token=' + data.access_token
         let form = {
           group: {
             name: name
           }
-        };
+        }
         request({method: 'POST',url: url, body: form, json: true})
         .then(function(res) {
-          let _data = res.body;
+          let _data = res.body
           if (_data) {
-            resolve(_data);
+            resolve(_data)
           } else{
-            throw new Error('create group fails');
+            throw new Error('create group fails')
           }
         })
         .catch(function(err) {
-          reject(err);
+          reject(err)
         })
         
       })
@@ -449,25 +449,25 @@ Wechat.prototype.createGroup = function(name) {
 
 /*获取分组*/
 Wechat.prototype.fetchGroups = function() {
-  let that = this;
+  let that = this
 
   return new promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
-        let url = api.group.fetch + 'access_token=' + data.access_token;
+        let url = api.group.fetch + 'access_token=' + data.access_token
 
         request({method: 'GET',url: url, json: true})
         .then(function(res) {
-          let _data = res.body;
+          let _data = res.body
           if (_data) {
-            resolve(_data);
+            resolve(_data)
           } else{
-            throw new Error('fetch group fails');
+            throw new Error('fetch group fails')
           }
         })
         .catch(function(err) {
-          reject(err);
+          reject(err)
         })
         
       })
@@ -477,28 +477,28 @@ Wechat.prototype.fetchGroups = function() {
 /*检查分组*/
 
 Wechat.prototype.checkGroup = function(openId) {
-  let that = this;
+  let that = this
 
   return new promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
-        let url = api.group.check + 'access_token=' + data.access_token;
+        let url = api.group.check + 'access_token=' + data.access_token
         let form = {
           openid: openId
-        };
+        }
 
         request({method: 'POST',url: url, body: form, json: true})
         .then(function(res) {
-          let _data = res.body;
+          let _data = res.body
           if (_data) {
-            resolve(_data);
+            resolve(_data)
           } else{
-            throw new Error('check group fails');
+            throw new Error('check group fails')
           }
         })
         .catch(function(err) {
-          reject(err);
+          reject(err)
         })
         
       })
@@ -508,32 +508,32 @@ Wechat.prototype.checkGroup = function(openId) {
 /*更新分组*/
 
 Wechat.prototype.updateGroup = function(id, name) {
-  let that = this;
+  let that = this
 
   return new promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
-        let url = api.group.update + 'access_token=' + data.access_token;
+        let url = api.group.update + 'access_token=' + data.access_token
 
         let form = {
           group: {
             id: id,
             name: name
           }
-        };
+        }
 
         request({method: 'POST',url: url, body: form, json: true})
         .then(function(res) {
-          let _data = res.body;
+          let _data = res.body
           if (_data) {
-            resolve(_data);
+            resolve(_data)
           } else{
-            throw new Error('update group fails');
+            throw new Error('update group fails')
           }
         })
         .catch(function(err) {
-          reject(err);
+          reject(err)
         })
         
       })
@@ -548,7 +548,7 @@ Wechat.prototype.updateGroup = function(id, name) {
  */
 
 Wechat.prototype.MoveGroup = function(openIds, toGruopId) {
-  let that = this;
+  let that = this
 
 
   return new promise(function(resolve, reject) {
@@ -557,27 +557,27 @@ Wechat.prototype.MoveGroup = function(openIds, toGruopId) {
       .then(function(data) {
         let form = {
           to_groupid: toGruopId
-        };
+        }
 
         if (_.isArray(openIds)) {
-          let url = api.group.batchUpdate + 'access_token=' + data.access_token;
-          form.openid_list = openIds;
+          let url = api.group.batchUpdate + 'access_token=' + data.access_token
+          form.openid_list = openIds
         } else {
-          let url = api.group.move + 'access_token=' + data.access_token;
-          form.openid = openIds;
+          let url = api.group.move + 'access_token=' + data.access_token
+          form.openid = openIds
         }
 
         request({method: 'POST',url: url, body: form, json: true})
         .then(function(res) {
-          let _data = res.body;
+          let _data = res.body
           if (_data) {
-            resolve(_data);
+            resolve(_data)
           } else{
-            throw new Error('batch move group fails');
+            throw new Error('batch move group fails')
           }
         })
         .catch(function(err) {
-          reject(err);
+          reject(err)
         })
         
       })
@@ -588,31 +588,31 @@ Wechat.prototype.MoveGroup = function(openIds, toGruopId) {
 /*删除用户分组*/
 
 Wechat.prototype.deleteGroup = function(id) {
-  let that = this;
+  let that = this
 
   return new promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
-        let url = api.group.del + 'access_token=' + data.access_token;
+        let url = api.group.del + 'access_token=' + data.access_token
 
         let form = {
           group: {
             id: id
           }
-        };
+        }
 
         request({method: 'POST',url: url, body: form, json: true})
         .then(function(res) {
-          let _data = res.body;
+          let _data = res.body
           if (_data) {
-            resolve(_data);
+            resolve(_data)
           } else{
-            throw new Error('delete group fails');
+            throw new Error('delete group fails')
           }
         })
         .catch(function(err) {
-          reject(err);
+          reject(err)
         })
         
       })
@@ -620,7 +620,109 @@ Wechat.prototype.deleteGroup = function(id) {
 }
 
 //------------------------------- group over ---------------------//
+//------------------------------- 设置用户备注名 开始 ---------------------//
+Wechat.prototype.remarkUser = function(openid,remark) {
+  let that = this
 
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        let url = api.user.remark + 'access_token=' + data.access_token
+
+        let form = {
+          openid:openId,
+          remark:remark
+        }
+
+        request({method: 'POST',url: url, body: form, json: true})
+        .then(function(res) {
+          let _data = res.body
+          if (_data) {
+            resolve(_data)
+          } else{
+            throw new Error('remark user name  fails')
+          }
+        })
+        .catch(function(err) {
+          reject(err)
+        })
+        
+      })
+  })
+}
+/*获取用户的信息*/
+Wechat.prototype.fetchUsers = function(openIds, lang) {
+  let that = this
+  lang = lang ? lang : 'zh_CN'
+  return new Promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        let options = {
+          json: true
+        }
+        if (_.isArray(openIds)) {
+          options.url = api.user.batchFetch + 'access_token=' + data.access_token
+          options.body = {
+            user_list: openIds
+          }
+          options.method = 'POST'
+        } else {
+          options.url = api.user.fetch + 'access_token=' + data.access_token + '&openid=' + openIds + '&lang=' + lang
+        }
+
+        request(options)
+        .then(function(res) {
+          let _data = res.body
+          if (_data) {
+            resolve(_data)
+          } else{
+            throw new Error('batch fetch users fails')
+          }
+        })
+        .catch(function(err) {
+          reject(err)
+        })
+        
+      })
+  })
+}
+/*索取用户列表  */
+Wechat.prototype.listUsers = function(openId) {
+  let that = this
+
+  return new Promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        let url = api.user.list + 'access_token=' + data.access_token
+
+        if (openId) {
+          url += '&next_openid=' + openId
+        }
+
+        request({method: 'GET',url: url, json: true})
+        .then(function(res) {
+          let _data = res.body
+          if (_data) {
+            resolve(_data)
+          } else{
+            throw new Error('list user fails')
+          }
+        })
+        .catch(function(err) {
+          reject(err)
+        })
+        
+      })
+  })
+}
+
+
+
+
+//------------------------------- 设置用户备注名 over ---------------------//
 
 
 

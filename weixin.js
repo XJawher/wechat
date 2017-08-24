@@ -14,7 +14,7 @@ if(message.MsgType === 'event') {
         if(message.EventKey) {
             console.log('扫二维码进来：' + message.EventKey + ' ' + message.ticket)
         }
-        this.body = '哈哈，你订阅了这个号\r\n'
+        this.body = '小傻逼 ，么么哒 \r\n'
     } else if(message.Event === 'unsubscribe') {
         console.log('取关')
         this.body = ''
@@ -30,14 +30,14 @@ if(message.MsgType === 'event') {
     }
 } else if(message.MsgType === 'text') {
     let content = message.Content
-    let reply = '您说的 ' + message.Content + ' 太复杂'
+    let reply =   message.Content + ' 太复杂等机器人来了给你解释，我还没升级'
 
     if(content === '1') {
-        reply = '第一'
+        reply = '爱我'
     } else if(content === '2') {
-        reply = '第二'
+        reply = '爱我还是吃屎'
     } else if(content === '3') {
-        reply = '第三'
+        reply = '我爱你啊 亲亲 木啊'
     } else if(content === '4') {
         reply = [{
             title: '技术改变世界',
@@ -62,8 +62,8 @@ if(message.MsgType === 'event') {
 
         reply = {
             type: 'video',
-            title: '回复视频内容',
-            description: '瞎说',
+            title: '小可爱胡巴',
+            description: '胡巴胡巴',
             mediaId: data.media_id
         }
     } else if(content === '7') {
@@ -73,7 +73,7 @@ let data = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg')
 reply = {
     type: 'music',
     title: '回复音乐内容',
-    description: '放松',
+    description: '随便找的',
     musicUrl: 'http://play.baidu.com/?__m=mboxCtrl.playSong&__a=540175998&__o=song/540175998||playBtn&fr=-1||-1#',
     thumbMediaId: data.media_id
 }
@@ -87,12 +87,12 @@ reply = {
 } else if(content === '9') {
     let data = yield wechatApi.uploadMaterial('video', __dirname + '/2.mp4', {type: 'video', description: '{"title": "nice", "introduction": "SO EASY"}'})
 
-    reply = {
-        type: 'video',
-        title: '回复视频内容',
-        description: '瞎说',
-        mediaId: data.media_id
-    }
+        reply = {
+            type: 'video',
+            title: '小可爱胡巴',
+            description: '胡巴胡巴',
+            mediaId: data.media_id
+        }
 }
 else if(content === '10') {
   let counts = yield wechatApi.countMaterial()
@@ -154,14 +154,32 @@ else if(content === '11') {
   console.log(groups)
 
   reply = '测试分组功能'
-
-
-
-
 }
 
+else if(content === '12') {
+  let user = yield wechatApi.fetchUsers(message.FromUserName,'en')
+  
+  console.log('fetch user')
+  console.log(user)
+  let openIds = [
+    {
+      openId:message.FromUserName,
+      lang:'en'
+    }
+  ]
+  let users = yield wechatApi.fetchUsers(openIds)
 
+  console.log('fetch usersssssssss')
+  console.log(users)
 
+  reply = JSON.stringify(user)
+}
+else if(content === '13') {
+  let userlist = yield wechatApi.listUsers()
+  console.log(userlist)
+
+  reply = userlist.total
+}
 
 this.body = reply
 }
