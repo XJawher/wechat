@@ -13,17 +13,54 @@ let api = {
 
 
     },
-    permanent: {/*永久的素材 uploadNews 图文消息 uploadNewsPic 图文消息封面图*/
-        upload: prefix + 'material/add_material?',
-        fetch: prefix + 'material/get_material?',/*获取永久素材*/
-        uploadNews: prefix + 'material/add_news?',
-        uploadNewsPic: prefix + 'media/uploadimg?',
-        del: prefix + 'media/del_material?',
-        update: prefix + 'media/update_news?', 
-        count: prefix + 'media/get_materialcount?', 
-        batch: prefix + 'media/batchget_material?'
-
-    }
+    permanent: {
+    upload: prefix + 'material/add_material?',
+    uploadNews: prefix + 'material/add_news?',
+    uploadNewsPic: prefix + 'media/uploadimg?',
+    fetch: prefix + 'material/get_material?',
+    del: prefix + 'material/del_material?',
+    update: prefix + 'material/update_news?',
+    count: prefix + 'material/get_materialcount?',
+    batch: prefix + 'material/batchget_material?'
+  },   
+  group: {
+    create: prefix + 'groups/create?',
+    fetch: prefix + 'groups/get?',
+    check: prefix + 'groups/getid?',
+    update: prefix + 'groups/update?',
+    move: prefix + 'groups/members/update?',
+    batchUpdate: prefix + 'groups/members/batchupdate?',
+    del: prefix + 'groups/delete?'
+  },
+  user: {
+    remark: prefix + 'user/info/updateremark?',
+    fetch: prefix + 'user/info?',
+    batchFetch: prefix + 'user/info/batchget?',
+    list: prefix + 'user/get?'
+  },
+  mass: {
+    group: prefix + 'message/mass/sendall?',
+    openId: prefix + 'message/mass/send?',
+    del: prefix + 'message/mass/delete?',
+    preview: prefix + 'message/mass/preview?',
+    check: prefix + 'message/mass/get?'
+  },
+  menu: {
+    create: prefix + 'menu/create?',
+    get: prefix + 'menu/get?',
+    del: prefix + 'menu/delete?',
+    current: prefix + 'get_current_selfmenu_info?'
+  },
+  qrcode: {
+    create: prefix + 'qrcode/create?',
+    show: prefix + 'showqrcode?'
+  },
+  shortUrl: {
+    create: prefix + 'shorturl?'
+  },
+  ticket: {
+    get: prefix + 'ticket/getticket?'
+  }
 }
 
 
@@ -38,6 +75,8 @@ function Wechat(opts) {
    this.fetchAccessToken() 
    
 }
+// --------------------------  素材部分开始 ------------------------------------//
+
 Wechat.prototype.fetchAccessToken = function (type,fliepath) {
   let that = this 
 
@@ -187,58 +226,6 @@ Wechat.prototype.uploadMaterial = function (type, material, permanent) {
 所以第一个就是素材 ID 然后要告诉获取的是什么类型的，所以要写入 type
 最后是 permanent 来告诉获取的是临时的还是永久的
 */
-// Wechat.prototype.fetchMaterial = function (mediaId, type, permanent) {
-//     const that = this
-//     // let form = {}
-//     //默认为零时素材
-//     let fetchUrl = api.temporary.fetch
-
-//     // 如果传入了参数
-//     if(permanent) {
-//         fetchUrl = api.permanent.fetch
-//     }
-
-//     return new Promise(function(resolve, reject) {
-//         that
-//             .fetchAccessToken()
-//             .then(function(data) {
-//                 let url = fetchUrl + 'access_token=' + data.access_token 
-//                 let form = {}
-//                 let options = {method: 'POST', url: url, json: true}
-//                 if (permanent) {
-//                   form.media_id = mediaId
-//                   form.access_token = data.access_token
-//                   options.body = form
-//                 }
-//                 else {
-//                   if (type === 'video') {
-//                     url = url.replace('https://','http://')
-//                   }
-//                   url += '&media_id' + mediaId
-//                 }
-//                 if (type === 'news' || type === 'video') {
-                  
-//                   /*request 向某个服务器发起 get 或者 post 请求*/
-//                   request(options).then(function(response) {
-//                     let _data = response.body
-//                     if(_data) {
-//                         resolve(_data)
-//                     } else {
-//                         throw new Error('fetch Material material fails')
-//                     }
-//                   })
-//                   .catch(function(err) {
-//                       reject(err)
-//                   })                  
-//                 }
-//                 else {
-//                   resolve(url)
-//                 }
-//             })
-//     })
-// }
-
-//-------------------scott 源码
 
 Wechat.prototype.fetchMaterial = function(mediaId, type, permanent) {
   let that = this
@@ -286,19 +273,6 @@ Wechat.prototype.fetchMaterial = function(mediaId, type, permanent) {
       })
   })
 }
-
-
-
-
-//-------------------scott 源码
-
-
-
-
-
-
-
-
 /*
 删除素材接口
 他只需要一个素材 ID 别的不需要
@@ -375,32 +349,33 @@ Wechat.prototype.updateMaterial = function (mediaId,news) {
 
 
 */
-Wechat.prototype.countMaterial = function () {
-    const that = this
-    _.extend(form,news)
-    return new Promise(function(resolve, reject) {
-        that
-            .fetchAccessToken()
-            .then(function(data) {
-                let url = api.permanent.count + 'access_token=' + data.access_token 
-            /*request 向某个服务器发起 get 或者 post 请求*/
-              request({method: 'GET', url: url, json: true}).then(function(response) {
-                  console.log('response' + JSON.stringify(response))
-                  let _data = response.body
-                  console.log('_data' + JSON.stringify(_data))
 
-                  if(_data) {
-                      resolve(_data)
-                  } else {
-                      throw new Error('update material fails')
-                  }
-              })
-              .catch(function(err) {
-                  reject(err)
-              })
-            })
-    })
+Wechat.prototype.countMaterial = function() {
+  var that = this;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.permanent.count + 'access_token=' + data.access_token;
+
+        request({method: 'GET', url: url, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('count material fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
 }
+
 
 /*
 获取素材列表 传入三个参数
@@ -408,37 +383,243 @@ type  是 素材的类型，图片（image）、视频（video）、语音 （vo
 offset  是 从全部素材的该偏移位置开始返回，0表示从第一个素材 返回
 count 是 返回素材的数量，取值在1到20之间
  */
-Wechat.prototype.batchMaterial = function (options) {
-    const that = this
+Wechat.prototype.batchMaterial = function(options) {
+  var that = this;
+  options.type = options.type || 'image';
+  options.offset = options.offset || 0;
+  options.count = options.count || 1;
 
-    options.type = options.type || 'image'
-    options.offset = options.offset || 0
-    options.count = options.count || 2
+  return new Promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.permanent.batch + 'access_token=' + data.access_token;
 
-    return new Promise(function(resolve, reject) {
-        that
-            .fetchAccessToken()
-            .then(function(data) {
-                let url = api.permanent.batch + 'access_token=' + data.access_token +'&media_id' + mediaId 
-            /*request 向某个服务器发起 get 或者 post 请求*/
-              request({method: 'POST', url: url, body: options, json: true}).then(function(response) {
-                  console.log('response' + JSON.stringify(response))
-                  let _data = response.body
-                  console.log('_data' + JSON.stringify(_data))
+        request({method: 'POST',url: url, body: options, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('batch material fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+//------------------------------------素材部分结束--------------------//
+//--------------------------------- group start---------------------//
 
-                  if(_data) {
-                      resolve(_data)
-                  } else {
-                      throw new Error('update material fails')
-                  }
-              })
-              .catch(function(err) {
-                  reject(err)
-              })
-            })
-    })
+
+/*创建分组*/
+Wechat.prototype.createGroup = function(name) {
+  let that = this;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        let url = api.group.create + 'access_token=' + data.access_token;
+        let form = {
+          group: {
+            name: name
+          }
+        };
+        request({method: 'POST',url: url, body: form, json: true})
+        .then(function(res) {
+          let _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('create group fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
 }
 
+
+/*获取分组*/
+Wechat.prototype.fetchGroups = function() {
+  let that = this;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        let url = api.group.fetch + 'access_token=' + data.access_token;
+
+        request({method: 'GET',url: url, json: true})
+        .then(function(res) {
+          let _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('fetch group fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+/*检查分组*/
+
+Wechat.prototype.checkGroup = function(openId) {
+  let that = this;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        let url = api.group.check + 'access_token=' + data.access_token;
+        let form = {
+          openid: openId
+        };
+
+        request({method: 'POST',url: url, body: form, json: true})
+        .then(function(res) {
+          let _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('check group fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+/*更新分组*/
+
+Wechat.prototype.updateGroup = function(id, name) {
+  let that = this;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        let url = api.group.update + 'access_token=' + data.access_token;
+
+        let form = {
+          group: {
+            id: id,
+            name: name
+          }
+        };
+
+        request({method: 'POST',url: url, body: form, json: true})
+        .then(function(res) {
+          let _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('update group fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+/*
+移动分组 openIds 用户唯一标识符 toGruopId 要移动到哪一个组中去
+把批量移动用户和移动用户合在一起 如果 openID 是数组那么就是批量移动的
+否则就是单独移动
+
+ */
+
+Wechat.prototype.MoveGroup = function(openIds, toGruopId) {
+  let that = this;
+
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        let form = {
+          to_groupid: toGruopId
+        };
+
+        if (_.isArray(openIds)) {
+          let url = api.group.batchUpdate + 'access_token=' + data.access_token;
+          form.openid_list = openIds;
+        } else {
+          let url = api.group.move + 'access_token=' + data.access_token;
+          form.openid = openIds;
+        }
+
+        request({method: 'POST',url: url, body: form, json: true})
+        .then(function(res) {
+          let _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('batch move group fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+
+/*删除用户分组*/
+
+Wechat.prototype.deleteGroup = function(id) {
+  let that = this;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        let url = api.group.del + 'access_token=' + data.access_token;
+
+        let form = {
+          group: {
+            id: id
+          }
+        };
+
+        request({method: 'POST',url: url, body: form, json: true})
+        .then(function(res) {
+          let _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('delete group fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+//------------------------------- group over ---------------------//
 
 
 

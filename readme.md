@@ -195,11 +195,217 @@ heredoc 和 ejs 这是两个很好用的模板库
 	    }
 	  })
 完成了素材的永久上传和下载，但是获取永久素材出了问题，需要进一步的解决   
+## 第九次 commit 用户分组   
+一个公众号可以支持 100 个分组也就是标签，方便对用户的管理。      
+接口调用请求说明
 
+	http请求方式：POST（请使用https协议）
+	https://api.weixin.qq.com/cgi-bin/tags/create?access_token=ACCESS_TOKEN
+	POST数据格式：JSON
+	POST数据例子：
+	{
+	  "tag" : {
+	    "name" : "广东"//标签名
+	  }
+	}
+	参数	说明
+	access_token	调用接口凭据
+	name	标签名（30个字符以内）    
+返回说明（正常时返回的json数据包示例）   
 
+	{
+	  "tag":{
+	"id":134,//标签id
+	"name":"广东"
+	  }
+	}      
+ 
+返回参数说明   
 
+	参数	说明
+	id	标签id，由微信分配
+	name	标签名，UTF8编码
+错误码说明 
 
+	错误码	说明
+	-1	系统繁忙
+	45157
+	标签名非法，请注意不能和其他标签重名
+	45158	标签名长度超过30个字节
+	45056	创建的标签数过多，请注意不能超过100个
+获取公众号已创建的标签
+接口调用请求说明
 
+	http请求方式：GET（请使用https协议）
+	https://api.weixin.qq.com/cgi-bin/tags/get?access_token=ACCESS_TOKEN
+	返回说明
+	{
+	  "tags":[{
+	      "id":1,
+	      "name":"每天一罐可乐星人",
+	      "count":0 //此标签下粉丝数
+	},{
+	  "id":2,
+	  "name":"星标组",
+	  "count":0
+	},{
+	  "id":127,
+	  "name":"广东",
+	  "count":5
+	}
+	  ]
+	}
+ 编辑标签
 
+	接口调用请求说明
+	http请求方式：POST（请使用https协议）
+	https://api.weixin.qq.com/cgi-bin/tags/update?access_token=ACCESS_TOKEN
+	POST数据格式：JSON
+	POST数据例子：
+	{
+	  "tag" : {
+	    "id" : 134,
+	    "name" : "广东人"
+	  }
+	}
+	返回说明
+	{
+	  "errcode":0,
+	  "errmsg":"ok"
+	}
+	错误码说明
+	错误码	说明
+	-1	系统繁忙
+	45157	标签名非法，请注意不能和其他标签重名
+	45158	标签名长度超过30个字节
+	45058	不能修改0/1/2这三个系统默认保留的标签
+删除标签    
 
+	请注意，当某个标签下的粉丝超过10w时，后台不可直接删除标签。此时，开发者可以对该标签下的openid列表，先进行取消标签的操作，直到粉丝数不超过10w后，才可直接删除该标签。
+	接口调用请求说明
+	http请求方式：POST（请使用https协议）
+	https://api.weixin.qq.com/cgi-bin/tags/delete?access_token=ACCESS_TOKEN
+	POST数据格式：JSON
+	POST数据例子：
+	{
+	  "tag":{
+	       "id" : 134
+	  }
+	}
+	返回说明
+	{
+	  "errcode":0,
+	  "errmsg":"ok"
+	}
+	错误码说明
+	错误码	说明
+	-1	系统繁忙
+	45058	不能修改0/1/2这三个系统默认保留的标签
+	45057
+该标签下粉丝数超过10w，不允许直接删除
+获取标签下粉丝列表    
 
+	接口调用请求说明
+	http请求方式：GET（请使用https协议）
+	https://api.weixin.qq.com/cgi-bin/user/tag/get?access_token=ACCESS_TOKEN
+	POST数据格式：JSON
+	POST数据例子：
+	{
+	  "tagid" : 134,
+	  "next_openid":""//第一个拉取的OPENID，不填默认从头开始拉取
+	}
+	返回说明（正常时返回的json包示例）
+	{
+	  "count":2,//这次获取的粉丝数量
+	  "data":{//粉丝列表
+	"openid":[
+	    "ocYxcuAEy30bX0NXmGn4ypqx3tI0",
+	    "ocYxcuBt0mRugKZ7tGAHPnUaOW7Y"
+	    ]
+	  },
+	  "next_openid":"ocYxcuBt0mRugKZ7tGAHPnUaOW7Y"//拉取列表最后一个用户的openid
+	}
+	错误码说明
+	错误码	说明
+	-1	系统繁忙
+	40003	传入非法的openid
+	45159	非法的tag_id
+	
+	用户管理
+	标签功能目前支持公众号为用户打上最多20个标签。
+	1. 批量为用户打标签
+	接口调用请求说明
+	http请求方式：POST（请使用https协议）
+	https://api.weixin.qq.com/cgi-bin/tags/members/batchtagging?access_token=ACCESS_TOKEN
+	POST数据格式：JSON
+	POST数据例子：
+	{
+	  "openid_list" : [//粉丝列表
+	    "ocYxcuAEy30bX0NXmGn4ypqx3tI0",
+	    "ocYxcuBt0mRugKZ7tGAHPnUaOW7Y"
+	  ],
+	  "tagid" : 134
+	}
+	返回说明（正常时返回的json包示例）
+	{
+	  "errcode":0,
+	  "errmsg":"ok"
+	}
+	错误码说明
+	错误码	说明
+	-1	系统繁忙
+	40032	每次传入的openid列表个数不能超过50个
+	45159	非法的标签
+	45059	有粉丝身上的标签数已经超过限制，即超过20个
+	40003	传入非法的openid
+	49003	传入的openid不属于此AppID
+批量为用户取消标签     
+
+	接口调用请求说明
+	http请求方式：POST（请使用https协议）
+	https://api.weixin.qq.com/cgi-bin/tags/members/batchuntagging?access_token=ACCESS_TOKEN
+	POST数据格式：JSON
+	POST数据例子：
+	{
+	  "openid_list" : [//粉丝列表
+	    "ocYxcuAEy30bX0NXmGn4ypqx3tI0",
+	    "ocYxcuBt0mRugKZ7tGAHPnUaOW7Y"
+	  ],
+	  "tagid" : 134
+	}
+	返回说明（正常时返回的json包示例）
+	{
+	  "errcode":0,
+	  "errmsg":"ok"
+	}
+	错误码说明
+	错误码	说明
+	-1	系统繁忙
+	40032	每次传入的openid列表个数不能超过50个
+	45159	非法的标签
+	40003	传入非法的openid
+	49003	传入的openid不属于此AppID
+	3. 获取用户身上的标签列表
+	接口调用请求说明
+	http请求方式：POST（请使用https协议）
+	https://api.weixin.qq.com/cgi-bin/tags/getidlist?access_token=ACCESS_TOKEN
+	POST数据格式：JSON
+	POST数据例子：
+	{
+	  "openid" : "ocYxcuBt0mRugKZ7tGAHPnUaOW7Y"
+	}
+	返回说明（正常情况下返回的json示例）
+	{
+	  "tagid_list":[//被置上的标签列表
+	134,
+	2
+	  ]
+	}
+	错误码说明
+	错误码	说明
+	-1	系统繁忙
+	40003	传入非法的openid
+	49003	传入的openid不属于此AppID
+以上是微信官方的接口 api
+
+在我测试的时候发现 分组的名字也就是标签名是可以重复出现的但是分组的 ID 却是唯一递增的，而且新增删除分组的时候是有个缓存时间的，不会说马上就发生。需要注意一下，完成了用户标签的功能就可以很方便的做用户的管理和分类  
