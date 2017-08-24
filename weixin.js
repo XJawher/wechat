@@ -181,6 +181,31 @@ else if(content === '13') {
   reply = userlist.total
 }
 
+else if(content === '14') {
+  let mpnews= {
+    media_id:'dkCmC6gOdnSs-qUok5Md3DqCqG-YkNz7H50bqMG064tnKVLuMeyvfmSjJp_XLXHd'
+  }
+  let text ={
+    'content' : '测试群发文本'
+  }
+  let msgData = yield wechatApi.sendByGroup('text',text,0)
+  console.log(msgData)
+  reply = '群发测试'
+}
+
+else if(content === '15') {
+  let text ={
+    'content' : '测试 previewMass 预览  这里是预览文本'
+  }
+  let mpnews= {
+    media_id:'dkCmC6gOdnSs-qUok5Md3DqCqG-YkNz7H50bqMG064tnKVLuMeyvfmSjJp_XLXHd'
+  }
+
+  let msgData = yield wechatApi.previewMass('text',text,0)
+  console.log(msgData)
+  reply = '测试 previewMass 预览'
+}
+
 this.body = reply
 }
 

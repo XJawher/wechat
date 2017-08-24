@@ -38,8 +38,8 @@ let api = {
     batchFetch: prefix + 'user/info/batchget?',/*多个用户的信息*/
     list: prefix + 'user/get?'
   },
-  mass: {
-    group: prefix + 'message/mass/sendall?',
+  mass: {/*群发消息*/
+    group: prefix + 'message/mass/sendall?',/*群发按照分组*/
     openId: prefix + 'message/mass/send?',
     del: prefix + 'message/mass/delete?',
     preview: prefix + 'message/mass/preview?',
@@ -692,7 +692,7 @@ Wechat.prototype.fetchUsers = function(openIds, lang) {
 Wechat.prototype.listUsers = function(openId) {
   let that = this
 
-  return new Promise(function(resolve, reject) {
+  return new promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -723,6 +723,371 @@ Wechat.prototype.listUsers = function(openId) {
 
 
 //------------------------------- 设置用户备注名 over ---------------------//
+//------------------------------- 群发消息接口 开始 ---------------------//
+Wechat.prototype.sendByGroup = function(type, message, groupId) {
+  var that = this;
+
+  var msg = {
+    filter: {},
+    msgtype: type
+  };
+  msg[type] = message;
+  if (!groupId) {
+    msg.filter.is_to_all = true;
+  } else {
+    msg.filter = {
+      is_to_all:false,
+      tag_id: groupId
+    }
+  };
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.mass.group + 'access_token=' + data.access_token;
+
+        request({method: 'POST',url: url, body: msg, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('send by group fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+Wechat.prototype.sendByOpenId = function(type, message, openIds) {
+  var that = this;
+
+  var msg = {
+    msgtype: type,
+    touser: openIds
+  };
+  msg[type] = message;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.mass.openId + 'access_token=' + data.access_token;
+
+        request({method: 'POST',url: url, body: msg, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('send by openId fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+Wechat.prototype.deleteMass = function(msgId) {
+  var that = this;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.mass.del + 'access_token=' + data.access_token;
+        var form = {
+          msg_id: msgId
+        };
+
+        request({method: 'POST',url: url, body: form, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('send by openId fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+Wechat.prototype.previewMass = function(type, message, openId) {
+  var that = this;
+
+  var msg = {
+    msgtype: type,
+    touser: openId
+  };
+  msg[type] = message;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.mass.preview + 'access_token=' + data.access_token;
+
+        request({method: 'POST',url: url, body: msg, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('preview mass fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+/*检查消息是否送达*/
+Wechat.prototype.checkMass = function(msgId) {
+  var that = this;
+
+  return new promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.mass.check + 'access_token=' + data.access_token;
+        var form = {
+          msg_id: msgId
+        }
+
+        request({method: 'POST',url: url, body: form, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('check mass fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
+        
+      })
+  })
+}
+
+//------------------------------- 群发接口 over ---------------------//
+
+
+
+
+
+// Wechat.prototype.createMenu = function(menu) {
+//   var that = this;
+
+//   return new promise(function(resolve, reject) {
+//     that
+//       .fetchAccessToken()
+//       .then(function(data) {
+//         var url = api.menu.create + 'access_token=' + data.access_token;
+
+//         request({method: 'POST',url: url, body: menu, json: true})
+//         .then(function(res) {
+//           var _data = res.body;
+//           if (_data) {
+//             resolve(_data);
+//           } else{
+//             throw new Error('create menu fails');
+//           }
+//         })
+//         .catch(function(err) {
+//           reject(err);
+//         })
+        
+//       })
+//   })
+// }
+
+// Wechat.prototype.getMenu = function() {
+//   var that = this;
+
+//   return new promise(function(resolve, reject) {
+//     that
+//       .fetchAccessToken()
+//       .then(function(data) {
+//         var url = api.menu.get + 'access_token=' + data.access_token;
+
+//         request({method: 'GET',url: url, json: true})
+//         .then(function(res) {
+//           var _data = res.body;
+//           if (_data) {
+//             resolve(_data);
+//           } else{
+//             throw new Error('get menu fails');
+//           }
+//         })
+//         .catch(function(err) {
+//           reject(err);
+//         })
+        
+//       })
+//   })
+// }
+
+// Wechat.prototype.deleteMenu = function() {
+//   var that = this;
+
+//   return new promise(function(resolve, reject) {
+//     that
+//       .fetchAccessToken()
+//       .then(function(data) {
+//         var url = api.menu.del + 'access_token=' + data.access_token;
+
+//         request({method: 'GET',url: url, json: true})
+//         .then(function(res) {
+//           var _data = res.body;
+//           if (_data) {
+//             resolve(_data);
+//           } else{
+//             throw new Error('delete menu fails');
+//           }
+//         })
+//         .catch(function(err) {
+//           reject(err);
+//         })
+        
+//       })
+//   })
+// }
+
+// Wechat.prototype.getCurrentMneu = function() {
+//   var that = this;
+
+//   return new promise(function(resolve, reject) {
+//     that
+//       .fetchAccessToken()
+//       .then(function(data) {
+//         var url = api.menu.current + 'access_token=' + data.access_token;
+
+//         request({method: 'GET',url: url, json: true})
+//         .then(function(res) {
+//           var _data = res.body;
+//           if (_data) {
+//             resolve(_data);
+//           } else{
+//             throw new Error('get current menu fails');
+//           }
+//         })
+//         .catch(function(err) {
+//           reject(err);
+//         })
+        
+//       })
+//   })
+// }
+
+// Wechat.prototype.createQrCode = function(qr) {
+//   var that = this;
+
+//   return new promise(function(resolve, reject) {
+//     that
+//       .fetchAccessToken()
+//       .then(function(data) {
+//         var url = api.qrcode.create + 'access_token=' + data.access_token;
+
+//         request({method: 'POST',url: url, body: qr, json: true})
+//         .then(function(res) {
+//           var _data = res.body;
+//           if (_data) {
+//             resolve(_data);
+//           } else{
+//             throw new Error('create qrcode fails');
+//           }
+//         })
+//         .catch(function(err) {
+//           reject(err);
+//         })
+        
+//       })
+//   })
+// }
+
+// Wechat.prototype.showQrCode = function(ticket) {
+//   return api.qrcode.show + 'ticket=' + encodeURI(ticket);
+// }
+
+// Wechat.prototype.createShortUrl = function(action, url) {
+//   var that = this;
+//   action = action || 'long2short';
+//   return new promise(function(resolve, reject) {
+//     that
+//       .fetchAccessToken()
+//       .then(function(data) {
+//         var url = api.shortUrl.create + 'access_token=' + data.access_token;
+
+//         var form = {
+//           action: action,
+//           long_url: url
+//         }
+//         request({method: 'POST',url: url, body: form, json: true})
+//         .then(function(res) {
+//           var _data = res.body;
+//           if (_data) {
+//             resolve(_data);
+//           } else{
+//             throw new Error('show qrcode fails');
+//           }
+//         })
+//         .catch(function(err) {
+//           reject(err);
+//         })
+        
+//       })
+//   })
+// }
+
+// Wechat.prototype.showQrCode = function(ticket) {
+//   return api.qrcode.show + 'ticket=' + encodeURI(ticket);
+// }
+
+// Wechat.prototype.semantic = function(semanticData) {
+//   var that = this;
+//   return new promise(function(resolve, reject) {
+//     that
+//       .fetchAccessToken()
+//       .then(function(data) {
+//         var url = api.semanticUrl + 'access_token=' + data.access_token;
+
+//         semanticData.appid = data.appID;
+//         request({method: 'POST',url: url, body: semanticData, json: true})
+//         .then(function(res) {
+//           var _data = res.body;
+//           if (_data) {
+//             resolve(_data);
+//           } else{
+//             throw new Error('semantic fails');
+//           }
+//         })
+//         .catch(function(err) {
+//           reject(err);
+//         })
+        
+//       })
+//   })
+// }
+
+
+
 
 
 
