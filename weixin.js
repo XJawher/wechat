@@ -6,7 +6,7 @@ let wechatApi = new Wechat(config.wechat)
 
 
 exports.reply = function *(next) {
-    let message = this.weixin
+  let message = this.weixin
     console.log('message：' + message)
 
     if(message.MsgType === 'event') {
@@ -87,14 +87,47 @@ exports.reply = function *(next) {
         } else if(content === '9') {
             let data = yield wechatApi.uploadMaterial('video', __dirname + '/2.mp4', {type: 'video', description: '{"title": "nice", "introduction": "SO EASY"}'})
 
-            console.log(data)
-
             reply = {
                 type: 'video',
                 title: '回复视频内容',
                 description: '瞎说',
                 mediaId: data.media_id
             }
+        }
+        else if(content === '10') {
+            let picData = yield wechatApi.uploadMaterial('image', __dirname + '/2.jpg', {})
+
+            let media = {
+                articles:[{
+                    title:'咸菜爱娇娇',
+                    thumb_media_id:picData.media_id,
+                    author:'lipc',
+                    digest:'摘要就是娇娇也爱我啊',
+                    shoe_cover_pic:1,
+                    cotent:'这里的是微信的官方的文档库啊，你要不要点开看看？？',
+                    content_source_url:'https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1444738734'
+
+                }]
+            }
+
+            data = yield wechatApi.uploadMaterial('news',media,{})
+            data = yield wechatApi.fetchMaterial(data.media_id,'news',{})
+
+            let items = data.news_item
+            let news = []
+
+            items.forEach(function (item) {
+                news.push({
+                    title:item.title,
+                    description:item.digest,
+                    picUrl:picData.url,
+                    url:item.url
+                })
+            })
+
+            reply = news
+
+
         }
 
         this.body = reply

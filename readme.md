@@ -154,7 +154,7 @@ heredoc 和 ejs 这是两个很好用的模板库
 	      })   
 	  })
 
-## 实现永久素材的上传   
+## 第七次 commit 实现永久素材的上传   
 下面是微信官方对于永久素材的一个定义 
   
 	对于常用的素材，开发者可通过本接口上传到微信服务器，永久使用。
@@ -176,10 +176,24 @@ heredoc 和 ejs 这是两个很好用的模板库
 
 **图片素材上限为5000，其他类型为1000** 这个值得注意    
 我这里在做永久素材上传的时候发生了 **48001** 这个错误的代码，说是个人的微信公众号不支持认证所以没有接口的权限，暂时把这个先放下
+## 第八次 commit 换测试号开发   
+没有认证的微信公众号是不具备很多的开发接口所以这里用测试号开始做开发   
+已经完成了永久素材的上传，接下来就是下载删除还有更新   
 
 
 
-
+报错出现这样的问题： options.uri is a required argument   
+解决的办法是在下面正确的添加了 let _data = response.body 的位置     
+	
+	  /*request 向某个服务器发起 get 或者 post 请求*/
+	  request(options).then(function(response) {
+	    let _data = response.body
+	    if(_data) {
+	        resolve(_data)
+	    } else {
+	        throw new Error('fetch Material material fails')
+	    }
+	  })
 
 
 
