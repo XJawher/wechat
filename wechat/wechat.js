@@ -46,10 +46,10 @@ let api = {
     check: prefix + 'message/mass/get?'
   },
   menu: {
-    create: prefix + 'menu/create?',
-    get: prefix + 'menu/get?',
-    del: prefix + 'menu/delete?',
-    current: prefix + 'get_current_selfmenu_info?'
+    create: prefix + 'menu/create?',/*创建*/
+    get: prefix + 'menu/get?',/*获取*/
+    del: prefix + 'menu/delete?',/*删除*/
+    current: prefix + 'get_current_selfmenu_info?'/*获取自定义菜单接口*/
   },
   qrcode: {
     create: prefix + 'qrcode/create?',
@@ -105,6 +105,9 @@ Wechat.prototype.fetchAccessToken = function (type,fliepath) {
     that.access_token = data.access_token //把这个 access_token 挂到实例上
     that.expires_in = data.expires_in //票据的过期字段
     
+
+    console.log("that.access_token  wechat.js  109 => access_token")
+    console.log(that.access_token)
     that.saveAccessToken(data)//调用 save 方法，把票据存起来
 
     return promise.resolve(data)
@@ -131,7 +134,7 @@ Wechat.prototype.updataAccessToken = function() {
   let appSecret = this.appSecret
   let url = api.accessToken + '&appid='+appID + '&secret='+appSecret
 
-  return new promise(function (resolve,reject) {
+  return new Promise(function (resolve,reject) {
 
     /*request 向某个服务器发起 get 或者 post 请求*/
     request({url:url,json:true}).then(function (response) {
@@ -353,7 +356,7 @@ Wechat.prototype.updateMaterial = function (mediaId,news) {
 Wechat.prototype.countMaterial = function() {
   let that = this
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -419,7 +422,7 @@ Wechat.prototype.batchMaterial = function(options) {
 Wechat.prototype.createGroup = function(name) {
   let that = this
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -451,7 +454,7 @@ Wechat.prototype.createGroup = function(name) {
 Wechat.prototype.fetchGroups = function() {
   let that = this
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -479,7 +482,7 @@ Wechat.prototype.fetchGroups = function() {
 Wechat.prototype.checkGroup = function(openId) {
   let that = this
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -510,7 +513,7 @@ Wechat.prototype.checkGroup = function(openId) {
 Wechat.prototype.updateGroup = function(id, name) {
   let that = this
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -551,7 +554,7 @@ Wechat.prototype.MoveGroup = function(openIds, toGruopId) {
   let that = this
 
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -590,7 +593,7 @@ Wechat.prototype.MoveGroup = function(openIds, toGruopId) {
 Wechat.prototype.deleteGroup = function(id) {
   let that = this
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -624,7 +627,7 @@ Wechat.prototype.deleteGroup = function(id) {
 Wechat.prototype.remarkUser = function(openid,remark) {
   let that = this
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -692,7 +695,7 @@ Wechat.prototype.fetchUsers = function(openIds, lang) {
 Wechat.prototype.listUsers = function(openId) {
   let that = this
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -740,7 +743,7 @@ Wechat.prototype.sendByGroup = function(type, message, groupId) {
       tag_id: groupId
     }
   };
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -772,7 +775,7 @@ Wechat.prototype.sendByOpenId = function(type, message, openIds) {
   };
   msg[type] = message;
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -798,7 +801,7 @@ Wechat.prototype.sendByOpenId = function(type, message, openIds) {
 Wechat.prototype.deleteMass = function(msgId) {
   var that = this;
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -833,7 +836,7 @@ Wechat.prototype.previewMass = function(type, message, openId) {
   };
   msg[type] = message;
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -860,7 +863,7 @@ Wechat.prototype.previewMass = function(type, message, openId) {
 Wechat.prototype.checkMass = function(msgId) {
   var that = this;
 
-  return new promise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     that
       .fetchAccessToken()
       .then(function(data) {
@@ -887,119 +890,122 @@ Wechat.prototype.checkMass = function(msgId) {
 }
 
 //------------------------------- 群发接口 over ---------------------//
+//------------------------------- 群发接口 over ---------------------//
 
 
 
+//------------------------------- 菜单 开始 ---------------------//
 
 
-// Wechat.prototype.createMenu = function(menu) {
-//   var that = this;
+Wechat.prototype.createMenu = function(menu) {
+  var that = this;
 
-//   return new promise(function(resolve, reject) {
-//     that
-//       .fetchAccessToken()
-//       .then(function(data) {
-//         var url = api.menu.create + 'access_token=' + data.access_token;
+  return new Promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.menu.create + 'access_token=' + data.access_token;
 
-//         request({method: 'POST',url: url, body: menu, json: true})
-//         .then(function(res) {
-//           var _data = res.body;
-//           if (_data) {
-//             resolve(_data);
-//           } else{
-//             throw new Error('create menu fails');
-//           }
-//         })
-//         .catch(function(err) {
-//           reject(err);
-//         })
+        request({method: 'POST',url: url, body: menu, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('create menu fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
         
-//       })
-//   })
-// }
+      })
+  })
+}
 
-// Wechat.prototype.getMenu = function() {
-//   var that = this;
+Wechat.prototype.getMenu = function() {
+  var that = this;
 
-//   return new promise(function(resolve, reject) {
-//     that
-//       .fetchAccessToken()
-//       .then(function(data) {
-//         var url = api.menu.get + 'access_token=' + data.access_token;
+  return new Promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.menu.get + 'access_token=' + data.access_token;
 
-//         request({method: 'GET',url: url, json: true})
-//         .then(function(res) {
-//           var _data = res.body;
-//           if (_data) {
-//             resolve(_data);
-//           } else{
-//             throw new Error('get menu fails');
-//           }
-//         })
-//         .catch(function(err) {
-//           reject(err);
-//         })
+        request({method: 'GET',url: url, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('get menu fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
         
-//       })
-//   })
-// }
+      })
+  })
+}
 
-// Wechat.prototype.deleteMenu = function() {
-//   var that = this;
+Wechat.prototype.deleteMenu = function() {
+  var that = this;
 
-//   return new promise(function(resolve, reject) {
-//     that
-//       .fetchAccessToken()
-//       .then(function(data) {
-//         var url = api.menu.del + 'access_token=' + data.access_token;
+  return new Promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.menu.del + 'access_token=' + data.access_token;
 
-//         request({method: 'GET',url: url, json: true})
-//         .then(function(res) {
-//           var _data = res.body;
-//           if (_data) {
-//             resolve(_data);
-//           } else{
-//             throw new Error('delete menu fails');
-//           }
-//         })
-//         .catch(function(err) {
-//           reject(err);
-//         })
+        request({url: url,body:menu, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('delete menu fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
         
-//       })
-//   })
-// }
+      })
+  })
+}
 
-// Wechat.prototype.getCurrentMneu = function() {
-//   var that = this;
+Wechat.prototype.getCurrentMneu = function() {
+  var that = this;
 
-//   return new promise(function(resolve, reject) {
-//     that
-//       .fetchAccessToken()
-//       .then(function(data) {
-//         var url = api.menu.current + 'access_token=' + data.access_token;
+  return new Promise(function(resolve, reject) {
+    that
+      .fetchAccessToken()
+      .then(function(data) {
+        var url = api.menu.current + 'access_token=' + data.access_token;
 
-//         request({method: 'GET',url: url, json: true})
-//         .then(function(res) {
-//           var _data = res.body;
-//           if (_data) {
-//             resolve(_data);
-//           } else{
-//             throw new Error('get current menu fails');
-//           }
-//         })
-//         .catch(function(err) {
-//           reject(err);
-//         })
+        request({method: 'GET',url: url, json: true})
+        .then(function(res) {
+          var _data = res.body;
+          if (_data) {
+            resolve(_data);
+          } else{
+            throw new Error('get current menu fails');
+          }
+        })
+        .catch(function(err) {
+          reject(err);
+        })
         
-//       })
-//   })
-// }
+      })
+  })
+}
+//------------------------------- 菜单 over ---------------------//
 
 // Wechat.prototype.createQrCode = function(qr) {
 //   var that = this;
 
-//   return new promise(function(resolve, reject) {
+//   return new Promise(function(resolve, reject) {
 //     that
 //       .fetchAccessToken()
 //       .then(function(data) {
@@ -1029,7 +1035,7 @@ Wechat.prototype.checkMass = function(msgId) {
 // Wechat.prototype.createShortUrl = function(action, url) {
 //   var that = this;
 //   action = action || 'long2short';
-//   return new promise(function(resolve, reject) {
+//   return new Promise(function(resolve, reject) {
 //     that
 //       .fetchAccessToken()
 //       .then(function(data) {
@@ -1062,7 +1068,7 @@ Wechat.prototype.checkMass = function(msgId) {
 
 // Wechat.prototype.semantic = function(semanticData) {
 //   var that = this;
-//   return new promise(function(resolve, reject) {
+//   return new Promise(function(resolve, reject) {
 //     that
 //       .fetchAccessToken()
 //       .then(function(data) {

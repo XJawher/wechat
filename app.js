@@ -7,7 +7,8 @@ let g = require('./wechat/g')
 let util = require('./libs/util')
 let wechat_file = path.join(__dirname ,'./config/wechat.txt')
 let weixin = require('./weixin')
-  
+
+
 let app = new koa()
 app.use(g(config.wechat,weixin.reply))
 app.listen(1399)

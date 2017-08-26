@@ -1,9 +1,19 @@
+
+let menu = require('./menu')
+let path = require('path')
+
+
 let config = require('./config')
 
 let Wechat = require('./wechat/wechat')
 
 let wechatApi = new Wechat(config.wechat)
-
+/*为了保险起见，先把删除一个重新初始化*/
+wechatApi.deleteMenu().then(function(){
+    return wechatApi.createMenu(menu);
+}).then(function(msg){
+    console.log(msg);
+});
 
 exports.reply = function *(next) {
 let message = this.weixin
@@ -25,8 +35,36 @@ if(message.MsgType === 'event') {
     } else if(message.Event === 'SCAN') {
         console.log('关注后扫二维码：' + message.EventKey + ' ' + message.ticket )
         this.body = '扫一下'
-    } else if(message.Event === 'view') {
-        this.body = '您单击了菜单中的链接：' + message.EventKey
+    } else if(message.Event === 'VIEW') {
+        this.body = '宝和金融' + message.EventKey
+    }else if(message.Event === 'scancode_push') {
+        this.body = 'scancode_push：扫码推事件的事件推送' + message.EventKey
+        console.log(message.ScanCodeInfo.ScanType)
+        console.log(message.ScanCodeInfo.ScanResult)
+    }else if(message.Event === 'location_select') {/*
+        
+        console.log(message.SendLocationInfo.Location_X)
+        console.log(message.SendLocationInfo.Location_Y)
+        console.log(message.SendLocationInfo.Scale)
+        console.log(message.SendLocationInfo.Label)
+        console.log(message.SendLocationInfo.Poiname)*/
+        this.body = '位置信息' + message.EventKey
+    }else if(message.Event === 'pic_sysphoto_or_album') {
+        this.body = 'pic_photo_or_album：弹出拍照或者相册发图的事件推送' + message.EventKey
+        console.log(message.ScanCodeInfo.Count)
+        console.log(message.ScanCodeInfo.PicList)
+    }else if(message.Event === 'pic_sysphoto') {
+        this.body = 'pic_sysphoto：弹出系统拍照发图的事件推送' + message.EventKey
+        console.log(message.ScanCodeInfo.Count)
+        console.log(message.ScanCodeInfo.PicList)
+    }else if(message.Event === 'pic_weixin') {
+        this.body = 'pic_weixin：弹出微信相册发图器的事件推送' + message.EventKey
+        console.log(message.ScanCodeInfo.Count)
+        console.log(message.ScanCodeInfo.PicList)
+    }else if(message.Event === 'scancode_waitmsg') {
+        this.body = 'scancode_waitmsg：扫码推事件且弹出“消息接收中”提示框的事件推送' + message.EventKey
+        console.log(message.ScanCodeInfo.ScanType)
+        console.log(message.ScanCodeInfo.ScanResult)
     }
 } else if(message.MsgType === 'text') {
     let content = message.Content
